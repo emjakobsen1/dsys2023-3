@@ -1,0 +1,3 @@
+syntax = "proto3";
+
+option go_package = "github.com/emjakobsen1/dsys2023-3/proto";
