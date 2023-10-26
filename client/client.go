@@ -22,7 +22,7 @@ var serverPort = flag.String("server", "5400", "Tcp server")
 
 var server gRPC.ChatServiceClient //the server
 var ServerConn *grpc.ClientConn   //the server connection
-var stream gRPC.ChatService_SayHiClient
+var stream gRPC.ChatService_MessageClient
 
 func main() {
 	//parse flag/arguments
@@ -47,11 +47,11 @@ func main() {
 
 func establishStream() {
 	var err error
-	stream, err = server.SayHi(context.Background()) // This establishes the stream
+	stream, err = server.Message(context.Background()) // This establishes the stream
 	if err != nil {
 		log.Fatalf("Failed to establish stream: %v", err)
 	}
-	if err := stream.Send(&gRPC.Greeting{ClientName: *clientsName, Message: "Participant " + *clientsName + " joined the chat."}); err != nil {
+	if err := stream.Send(&gRPC.Request{ClientName: *clientsName, Message: "Participant " + *clientsName + " joined the chat."}); err != nil {
 		log.Println("Failed to send message:", err)
 		return
 	}
@@ -76,8 +76,6 @@ func ConnectToServer() {
 		return
 	}
 
-	// makes a client from the server connection and saves the connection
-	// and prints rather or not the connection was is READY
 	server = gRPC.NewChatServiceClient(conn)
 	ServerConn = conn
 	log.Println("the connection is: ", conn.GetState().String())
@@ -102,19 +100,14 @@ func parseInput() {
 		}
 
 		// Use the globally established stream for sending messages
-		if err := stream.Send(&gRPC.Greeting{ClientName: *clientsName, Message: input}); err != nil {
+		if err := stream.Send(&gRPC.Request{ClientName: *clientsName, Message: input}); err != nil {
 			log.Println("Failed to send message:", err)
 			return
 		}
-		// farewell, err := stream.Recv()
-		// if err != nil {
-		// 	log.Println(err)
-		// 	return
-		// }
-		// log.Println("server says: ", farewell)
+
 	}
 }
-func listenForMessages(stream gRPC.ChatService_SayHiClient) {
+func listenForMessages(stream gRPC.ChatService_MessageClient) {
 	for {
 		farewell, err := stream.Recv()
 		if err == io.EOF {

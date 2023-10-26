@@ -9,14 +9,14 @@ package proto;
 
 service ChatService
 {
-    rpc Message (stream Greeting) returns (stream Farewell);
+    rpc Message (stream Request) returns (stream Reply);
 }
 
-message Greeting {
+message Request {
     string clientName = 1;
     string message = 2;
 }
 
-message Farewell {
+message Reply {
     string message = 1;
 }

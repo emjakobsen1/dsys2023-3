@@ -24,7 +24,7 @@ func main() {
 
 func launchServer() {
 	fmt.Printf("Server: Attempts to create listener \n")
-	list, err := net.Listen("tcp", fmt.Sprintf("localhost:5400"))
+	list, err := net.Listen("tcp", "localhost:5400")
 	if err != nil {
 		fmt.Printf("Server: Failed to listen on port 5400")
 		return
@@ -72,10 +72,10 @@ func (s *Server) Message(msgStream gRPC.ChatService_MessageServer) error {
 		}
 		log.Printf("Participant %s: %s", msg.ClientName, msg.Message)
 		// Broadcast to all clients
-		msgToClient := msg.Message
+
 		s.mutex.Lock()
 		for client := range s.clients {
-			if err := client.Send(&gRPC.Farewell{Message: msgToClient}); err != nil {
+			if err := client.Send(&gRPC.Reply{Message: msg.Message}); err != nil {
 				log.Printf("Error sending to client: %v", err)
 			}
 		}
