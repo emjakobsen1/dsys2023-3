@@ -49,7 +49,7 @@ func launchServer() {
 	// code here is unreachable because grpcServer.Serve occupies the current thread.
 }
 
-func (s *Server) SayHi(msgStream gRPC.ChatService_MessageServer) error {
+func (s *Server) Message(msgStream gRPC.ChatService_MessageServer) error {
 	// Add the client to the map
 	s.mutex.Lock()
 	s.clients[msgStream] = true
