@@ -42,7 +42,6 @@ func main() {
 	go listenForMessages(stream) // Start listening immediately after the stream is established
 
 	parseInput()
-	//start the biding
 
 }
 
@@ -51,6 +50,10 @@ func establishStream() {
 	stream, err = server.SayHi(context.Background()) // This establishes the stream
 	if err != nil {
 		log.Fatalf("Failed to establish stream: %v", err)
+	}
+	if err := stream.Send(&gRPC.Greeting{ClientName: *clientsName, Message: "Participant " + *clientsName + " joined the chat."}); err != nil {
+		log.Println("Failed to send message:", err)
+		return
 	}
 }
 
@@ -122,7 +125,7 @@ func listenForMessages(stream gRPC.ChatService_SayHiClient) {
 			log.Println("Error receiving from server:", err)
 			return
 		}
-		log.Println("server says:", farewell)
+		log.Println(farewell)
 	}
 }
 

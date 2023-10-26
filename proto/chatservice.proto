@@ -5,12 +5,11 @@ option go_package = "github.com/emjakobsen1/dsys2023-3/proto";
 package proto;
 
 // compile command:
-// protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative [path to file, ex. proto/template.proto]
-
+// protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/chatservice.proto
 
 service ChatService
 {
-    rpc SayHi (stream Greeting) returns (stream Farewell);
+    rpc Message (stream Greeting) returns (stream Farewell);
 }
 
 message Greeting {

@@ -13,26 +13,20 @@ import (
 
 type Server struct {
 	gRPC.UnimplementedChatServiceServer // You need this line if you have a server
-	// name                             string // Not required but useful if you want to name your server
-	// port                             string // Not required but useful if your server needs to know what port it's listening to
-	clients map[gRPC.ChatService_SayHiServer]bool
-	// incrementValue int64      // value that clients can increment.
-	mutex sync.Mutex // used to lock the server to avoid race conditions.
+	clients                             map[gRPC.ChatService_MessageServer]bool
+	mutex                               sync.Mutex // used to lock the server to avoid race conditions.
 }
 
 func main() {
-
 	fmt.Println(".:server is starting:.")
 	launchServer()
 }
 
 func launchServer() {
 	fmt.Printf("Server: Attempts to create listener \n")
-
-	// Create listener tcp on given port or default port 5400
 	list, err := net.Listen("tcp", fmt.Sprintf("localhost:5400"))
 	if err != nil {
-		fmt.Printf("Server: Failed to listen on port 5400") //If it fails to listen on the port, run launchServer method again with the next value/port in ports array
+		fmt.Printf("Server: Failed to listen on port 5400")
 		return
 	}
 
@@ -41,12 +35,11 @@ func launchServer() {
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 
-	// makes a new server instance using the name and port from the flags.
 	server := &Server{
-		clients: make(map[gRPC.ChatService_SayHiServer]bool),
+		clients: make(map[gRPC.ChatService_MessageServer]bool),
 	}
 
-	gRPC.RegisterChatServiceServer(grpcServer, server) //Registers the server to the gRPC server.
+	gRPC.RegisterChatServiceServer(grpcServer, server)
 
 	fmt.Printf("Server: Listening at %v\n", list.Addr())
 
@@ -56,7 +49,7 @@ func launchServer() {
 	// code here is unreachable because grpcServer.Serve occupies the current thread.
 }
 
-func (s *Server) SayHi(msgStream gRPC.ChatService_SayHiServer) error {
+func (s *Server) SayHi(msgStream gRPC.ChatService_MessageServer) error {
 	// Add the client to the map
 	s.mutex.Lock()
 	s.clients[msgStream] = true
@@ -77,8 +70,7 @@ func (s *Server) SayHi(msgStream gRPC.ChatService_SayHiServer) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("Received message from %s: %s", msg.ClientName, msg.Message)
-		log.Printf("Clients: %d", len(s.clients))
+		log.Printf("Participant %s: %s", msg.ClientName, msg.Message)
 		// Broadcast to all clients
 		msgToClient := msg.Message
 		s.mutex.Lock()

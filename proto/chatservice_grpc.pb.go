@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ChatService_SayHi_FullMethodName = "/proto.ChatService/SayHi"
+	ChatService_Message_FullMethodName = "/proto.ChatService/Message"
 )
 
 // ChatServiceClient is the client API for ChatService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatServiceClient interface {
-	SayHi(ctx context.Context, opts ...grpc.CallOption) (ChatService_SayHiClient, error)
+	Message(ctx context.Context, opts ...grpc.CallOption) (ChatService_MessageClient, error)
 }
 
 type chatServiceClient struct {
@@ -37,30 +37,30 @@ func NewChatServiceClient(cc grpc.ClientConnInterface) ChatServiceClient {
 	return &chatServiceClient{cc}
 }
 
-func (c *chatServiceClient) SayHi(ctx context.Context, opts ...grpc.CallOption) (ChatService_SayHiClient, error) {
-	stream, err := c.cc.NewStream(ctx, &ChatService_ServiceDesc.Streams[0], ChatService_SayHi_FullMethodName, opts...)
+func (c *chatServiceClient) Message(ctx context.Context, opts ...grpc.CallOption) (ChatService_MessageClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ChatService_ServiceDesc.Streams[0], ChatService_Message_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &chatServiceSayHiClient{stream}
+	x := &chatServiceMessageClient{stream}
 	return x, nil
 }
 
-type ChatService_SayHiClient interface {
+type ChatService_MessageClient interface {
 	Send(*Greeting) error
 	Recv() (*Farewell, error)
 	grpc.ClientStream
 }
 
-type chatServiceSayHiClient struct {
+type chatServiceMessageClient struct {
 	grpc.ClientStream
 }
 
-func (x *chatServiceSayHiClient) Send(m *Greeting) error {
+func (x *chatServiceMessageClient) Send(m *Greeting) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *chatServiceSayHiClient) Recv() (*Farewell, error) {
+func (x *chatServiceMessageClient) Recv() (*Farewell, error) {
 	m := new(Farewell)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func (x *chatServiceSayHiClient) Recv() (*Farewell, error) {
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility
 type ChatServiceServer interface {
-	SayHi(ChatService_SayHiServer) error
+	Message(ChatService_MessageServer) error
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -80,8 +80,8 @@ type ChatServiceServer interface {
 type UnimplementedChatServiceServer struct {
 }
 
-func (UnimplementedChatServiceServer) SayHi(ChatService_SayHiServer) error {
-	return status.Errorf(codes.Unimplemented, "method SayHi not implemented")
+func (UnimplementedChatServiceServer) Message(ChatService_MessageServer) error {
+	return status.Errorf(codes.Unimplemented, "method Message not implemented")
 }
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
 
@@ -96,25 +96,25 @@ func RegisterChatServiceServer(s grpc.ServiceRegistrar, srv ChatServiceServer) {
 	s.RegisterService(&ChatService_ServiceDesc, srv)
 }
 
-func _ChatService_SayHi_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ChatServiceServer).SayHi(&chatServiceSayHiServer{stream})
+func _ChatService_Message_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ChatServiceServer).Message(&chatServiceMessageServer{stream})
 }
 
-type ChatService_SayHiServer interface {
+type ChatService_MessageServer interface {
 	Send(*Farewell) error
 	Recv() (*Greeting, error)
 	grpc.ServerStream
 }
 
-type chatServiceSayHiServer struct {
+type chatServiceMessageServer struct {
 	grpc.ServerStream
 }
 
-func (x *chatServiceSayHiServer) Send(m *Farewell) error {
+func (x *chatServiceMessageServer) Send(m *Farewell) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *chatServiceSayHiServer) Recv() (*Greeting, error) {
+func (x *chatServiceMessageServer) Recv() (*Greeting, error) {
 	m := new(Greeting)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -131,8 +131,8 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "SayHi",
-			Handler:       _ChatService_SayHi_Handler,
+			StreamName:    "Message",
+			Handler:       _ChatService_Message_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
