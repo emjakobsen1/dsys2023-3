@@ -17,6 +17,7 @@ message Request {
     string message = 2;
 }
 
-message Reply {
-    string message = 1;
+message Reply { 
+    string clientName = 1;
+    string message = 2;
 }

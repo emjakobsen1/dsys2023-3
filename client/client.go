@@ -27,9 +27,6 @@ var stream gRPC.ChatService_MessageClient
 func main() {
 	//parse flag/arguments
 	flag.Parse()
-
-	fmt.Println("--- CLIENT APP ---")
-
 	//log to file instead of console
 	//f := setLog()
 	//defer f.Close()
@@ -45,18 +42,6 @@ func main() {
 
 }
 
-func establishStream() {
-	var err error
-	stream, err = server.Message(context.Background()) // This establishes the stream
-	if err != nil {
-		log.Fatalf("Failed to establish stream: %v", err)
-	}
-	if err := stream.Send(&gRPC.Request{ClientName: *clientsName, Message: "Participant " + *clientsName + " joined the chat."}); err != nil {
-		log.Println("Failed to send message:", err)
-		return
-	}
-}
-
 // connect to server
 func ConnectToServer() {
 
@@ -68,7 +53,6 @@ func ConnectToServer() {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
-	//dial the server, with the flag "server", to get a connection to it
 	log.Printf("client %s: Attempts to dial on port %s\n", *clientsName, *serverPort)
 	conn, err := grpc.Dial(fmt.Sprintf(":%s", *serverPort), opts...)
 	if err != nil {
@@ -79,6 +63,18 @@ func ConnectToServer() {
 	server = gRPC.NewChatServiceClient(conn)
 	ServerConn = conn
 	log.Println("the connection is: ", conn.GetState().String())
+}
+
+func establishStream() {
+	var err error
+	stream, err = server.Message(context.Background()) // This establishes the stream
+	if err != nil {
+		log.Fatalf("Failed to establish stream: %v", err)
+	}
+	if err := stream.Send(&gRPC.Request{ClientName: *clientsName, Message: "joins."}); err != nil {
+		log.Println("Failed to send message:", err)
+		return
+	}
 }
 
 func parseInput() {
@@ -99,6 +95,13 @@ func parseInput() {
 			continue
 		}
 
+		if input == "/leave" {
+			if err := stream.Send(&gRPC.Request{ClientName: *clientsName, Message: "leaves."}); err != nil {
+				log.Println("Failed to send leaving message:", err)
+			}
+			return
+		}
+
 		// Use the globally established stream for sending messages
 		if err := stream.Send(&gRPC.Request{ClientName: *clientsName, Message: input}); err != nil {
 			log.Println("Failed to send message:", err)
@@ -109,7 +112,7 @@ func parseInput() {
 }
 func listenForMessages(stream gRPC.ChatService_MessageClient) {
 	for {
-		farewell, err := stream.Recv()
+		message, err := stream.Recv()
 		if err == io.EOF {
 			log.Println("Server closed the connection")
 			return
@@ -118,11 +121,10 @@ func listenForMessages(stream gRPC.ChatService_MessageClient) {
 			log.Println("Error receiving from server:", err)
 			return
 		}
-		log.Println(farewell)
+		log.Printf("Client %s publishes %s", message.ClientName, message.Message)
 	}
 }
 
-// Function which returns a true boolean if the connection to the server is ready, and false if it's not.
 func conReady(s gRPC.ChatServiceClient) bool {
 	return ServerConn.GetState().String() == "READY"
 }

@@ -41,7 +41,7 @@ func launchServer() {
 
 	gRPC.RegisterChatServiceServer(grpcServer, server)
 
-	fmt.Printf("Server: Listening at %v\n", list.Addr())
+	//fmt.Printf("Server: Listening at %v\n", list.Addr())
 
 	if err := grpcServer.Serve(list); err != nil {
 		log.Fatalf("failed to serve %v", err)
@@ -70,12 +70,12 @@ func (s *Server) Message(msgStream gRPC.ChatService_MessageServer) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("Participant %s: %s", msg.ClientName, msg.Message)
+		log.Printf("Client %s: %s", msg.ClientName, msg.Message)
 		// Broadcast to all clients
 
 		s.mutex.Lock()
 		for client := range s.clients {
-			if err := client.Send(&gRPC.Reply{Message: msg.Message}); err != nil {
+			if err := client.Send(&gRPC.Reply{Message: msg.Message, ClientName: msg.ClientName}); err != nil {
 				log.Printf("Error sending to client: %v", err)
 			}
 		}
