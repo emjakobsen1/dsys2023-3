@@ -12,12 +12,21 @@ service ChatService
     rpc Message (stream Request) returns (stream Reply);
 }
 
+enum MessageType {
+    PUBLISH = 0;
+    JOIN = 1;
+    LEAVE = 2;
+}
+
 message Request {
     string clientName = 1;
     string message = 2;
+    MessageType type = 3;
 }
+
 
 message Reply { 
     string clientName = 1;
     string message = 2;
+    MessageType type =3;
 }

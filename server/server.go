@@ -12,26 +12,23 @@ import (
 )
 
 type Server struct {
-	gRPC.UnimplementedChatServiceServer // You need this line if you have a server
-	clients                             map[gRPC.ChatService_MessageServer]bool
-	mutex                               sync.Mutex // used to lock the server to avoid race conditions.
+	gRPC.UnimplementedChatServiceServer
+	clients map[gRPC.ChatService_MessageServer]bool
+	mutex   sync.Mutex
 }
 
 func main() {
-	fmt.Println(".:server is starting:.")
+	log.SetFlags(0)
 	launchServer()
 }
 
 func launchServer() {
-	fmt.Printf("Server: Attempts to create listener \n")
 	list, err := net.Listen("tcp", "localhost:5400")
 	if err != nil {
 		fmt.Printf("Server: Failed to listen on port 5400")
 		return
 	}
 
-	// makes gRPC server using the options
-	// you can add options here if you want or remove the options part entirely
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 
@@ -41,21 +38,16 @@ func launchServer() {
 
 	gRPC.RegisterChatServiceServer(grpcServer, server)
 
-	//fmt.Printf("Server: Listening at %v\n", list.Addr())
-
 	if err := grpcServer.Serve(list); err != nil {
 		log.Fatalf("failed to serve %v", err)
 	}
-	// code here is unreachable because grpcServer.Serve occupies the current thread.
 }
 
 func (s *Server) Message(msgStream gRPC.ChatService_MessageServer) error {
-	// Add the client to the map
 	s.mutex.Lock()
 	s.clients[msgStream] = true
 	s.mutex.Unlock()
 
-	// Ensure the client is removed when the function exits
 	defer func() {
 		s.mutex.Lock()
 		delete(s.clients, msgStream)
@@ -70,12 +62,23 @@ func (s *Server) Message(msgStream gRPC.ChatService_MessageServer) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("Client %s: %s", msg.ClientName, msg.Message)
-		// Broadcast to all clients
+		if len([]rune(msg.Message)) > 128 {
+			continue
+		}
 
+		switch msg.Type {
+		case gRPC.MessageType_PUBLISH:
+			log.Printf("Client %s publishes: %s", msg.ClientName, msg.Message)
+		case gRPC.MessageType_JOIN:
+			log.Printf("Client %s joins", msg.ClientName)
+		case gRPC.MessageType_LEAVE:
+			log.Printf("Client %s leaves", msg.ClientName)
+		}
+
+		// Broadcast to all clients
 		s.mutex.Lock()
 		for client := range s.clients {
-			if err := client.Send(&gRPC.Reply{Message: msg.Message, ClientName: msg.ClientName}); err != nil {
+			if err := client.Send(&gRPC.Reply{Message: msg.Message, ClientName: msg.ClientName, Type: msg.Type}); err != nil {
 				log.Printf("Error sending to client: %v", err)
 			}
 		}
