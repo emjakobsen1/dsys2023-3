@@ -21,7 +21,7 @@ type Server struct {
 
 func main() {
 	log.SetFlags(log.LstdFlags)
-	file, err := os.OpenFile("service_log.txt", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+	file, err := os.OpenFile("../log/service_log.txt", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	if err != nil {
 		log.Fatalf("Failed to open log file: %v", err)
 	}
