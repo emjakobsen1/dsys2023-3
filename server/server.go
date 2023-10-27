@@ -5,10 +5,12 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
 	"sync"
 
 	gRPC "github.com/emjakobsen1/dsys2023-3/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/peer"
 )
 
 type Server struct {
@@ -18,7 +20,14 @@ type Server struct {
 }
 
 func main() {
-	log.SetFlags(0)
+	log.SetFlags(log.LstdFlags)
+	file, err := os.OpenFile("service_log.txt", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+	if err != nil {
+		log.Fatalf("Failed to open log file: %v", err)
+	}
+	defer file.Close()
+	log.SetOutput(file)
+
 	launchServer()
 }
 
@@ -44,6 +53,9 @@ func launchServer() {
 }
 
 func (s *Server) Message(msgStream gRPC.ChatService_MessageServer) error {
+	if peer, ok := peer.FromContext(msgStream.Context()); ok {
+		log.Println("Message service call by ", peer.Addr.String())
+	}
 	s.mutex.Lock()
 	s.clients[msgStream] = true
 	s.mutex.Unlock()
@@ -68,17 +80,17 @@ func (s *Server) Message(msgStream gRPC.ChatService_MessageServer) error {
 
 		switch msg.Type {
 		case gRPC.MessageType_PUBLISH:
-			log.Printf("Client %s publishes: %s", msg.ClientName, msg.Message)
+			fmt.Printf("T: %v Client %d publishes: %s \n", msg.Clock, msg.ClientName, msg.Message)
 		case gRPC.MessageType_JOIN:
-			log.Printf("Client %s joins", msg.ClientName)
+			fmt.Printf("T: %v Client %d joins \n", msg.Clock, msg.ClientName)
 		case gRPC.MessageType_LEAVE:
-			log.Printf("Client %s leaves", msg.ClientName)
+			fmt.Printf("T: %v Client %d leaves \n", msg.Clock, msg.ClientName)
 		}
 
 		// Broadcast to all clients
 		s.mutex.Lock()
 		for client := range s.clients {
-			if err := client.Send(&gRPC.Reply{Message: msg.Message, ClientName: msg.ClientName, Type: msg.Type}); err != nil {
+			if err := client.Send(&gRPC.Reply{Message: msg.Message, ClientName: msg.ClientName, Type: msg.Type, Clock: msg.Clock}); err != nil {
 				log.Printf("Error sending to client: %v", err)
 			}
 		}

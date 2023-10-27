@@ -19,14 +19,16 @@ enum MessageType {
 }
 
 message Request {
-    string clientName = 1;
+    int32 clientName = 1;
     string message = 2;
     MessageType type = 3;
+    repeated int32 clock = 4;
 }
 
 
 message Reply { 
-    string clientName = 1;
+    int32 clientName = 1;
     string message = 2;
     MessageType type =3;
+    repeated int32 clock = 4;
 }
