@@ -1,0 +1,8 @@
+2023/10/31 10:27:28 Message service call by  127.0.0.1:50450
+2023/10/31 10:27:31 Message service call by  127.0.0.1:50451
+2023/10/31 10:27:55 Message service call by  127.0.0.1:50453
+2023/10/31 10:28:05 Error sending to client: rpc error: code = Unavailable desc = transport is closing
+2023/10/31 10:28:28 Error sending to client: rpc error: code = Unavailable desc = transport is closing
+2023/10/31 10:28:37 Message service call by  127.0.0.1:50459
+2023/10/31 10:28:49 Error sending to client: rpc error: code = Unavailable desc = transport is closing
+2023/10/31 10:28:53 Error sending to client: rpc error: code = Unavailable desc = transport is closing

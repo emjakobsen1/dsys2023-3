@@ -142,13 +142,13 @@ func listenForMessages(stream gRPC.ChatService_MessageClient) {
 		switch message.Type {
 		case gRPC.MessageType_PUBLISH:
 			log.Printf("T %v: Participant %d publishes %s", clock, message.ClientName, message.Message)
-			logger.Printf("T: %v Participant %d publishes %s", clock, message.ClientName, message.Message)
+			logger.Printf("Client: %d T: %v Participant %d publishes %s", *clientsName, clock, message.ClientName, message.Message)
 		case gRPC.MessageType_JOIN:
 			log.Printf("T: %v Participant %d joins", clock, message.ClientName)
-			logger.Printf("T: %v Client %d joins", clock, message.ClientName)
+			logger.Printf("Client %d T: %v Client %d joins", *clientsName, clock, message.ClientName)
 		case gRPC.MessageType_LEAVE:
 			log.Printf("T: %v Participant %d leaves", clock, message.ClientName)
-			logger.Printf("T: %v Participant %d leaves", clock, message.ClientName)
+			logger.Printf("Client %d T: %v Participant %d leaves", *clientsName, clock, message.ClientName)
 		}
 
 	}

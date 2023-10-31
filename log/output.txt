@@ -1,1 +1,25 @@
-T: [2 0 0] Client 0 joins
+Client 0 T: [2 0 0] Client 0 joins
+Client 0 T: [3 1 0] Client 1 joins
+Client 1 T: [0 2 0] Client 1 joins
+Client: 1 T: [0 4 0] Participant 1 publishes Hey!
+Client: 0 T: [4 3 0] Participant 1 publishes Hey!
+Client: 0 T: [6 3 0] Participant 0 publishes Hello from Mr. 0!
+Client: 1 T: [5 5 0] Participant 0 publishes Hello from Mr. 0!
+Client 1 T: [5 6 1] Client 2 joins
+Client 0 T: [7 3 1] Client 2 joins
+Client 2 T: [0 0 2] Client 2 joins
+Client: 0 T: [8 3 3] Participant 2 publishes Please welcome Mr. 2!
+Client: 2 T: [0 0 4] Participant 2 publishes Please welcome Mr. 2!
+Client: 1 T: [5 7 3] Participant 2 publishes Please welcome Mr. 2!
+Client 0 T: [9 8 3] Participant 1 leaves
+Client 2 T: [5 8 5] Participant 1 leaves
+Client: 0 T: [10 8 6] Participant 2 publishes Now I wanna leave...
+Client: 2 T: [5 8 7] Participant 2 publishes Now I wanna leave...
+Client: 0 T: [12 8 6] Participant 0 publishes Got it.
+Client: 2 T: [11 8 8] Participant 0 publishes Got it.
+Client 2 T: [13 8 9] Participant 0 leaves
+Client 2 T: [13 8 10] Client 1 joins
+Client 1 T: [0 2 0] Client 1 joins
+Client: 2 T: [13 8 12] Participant 2 publishes Ses!
+Client: 1 T: [13 9 11] Participant 2 publishes Ses!
+Client 2 T: [13 10 13] Participant 1 leaves
